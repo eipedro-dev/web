@@ -1,16 +1,14 @@
-export type LineItem = { quantity: number; unitPrice: number };
+export type LineItem = { quantity: number; unitPriceCents: number };
 
-export function CalculateTotals(items: LineItem[], discountCents = 0) {
-  const subTotal = items.reduce(
-    (sum, item) => sum + Math.round(item.quantity * item.unitPrice),
+export function calcTotals(items: LineItem[], discountCents = 0) {
+  const subtotalCents = items.reduce(
+    (sum, i) => sum + Math.round(i.quantity * i.unitPriceCents),
     0,
   );
-
-  const discount = Math.min(Math.max(discountCents, 0), subTotal);
-
+  const discount = Math.min(Math.max(discountCents, 0), subtotalCents);
   return {
-    subTotal,
+    subtotalCents,
     discountCents: discount,
-    total: subTotal - discount,
+    totalCents: subtotalCents - discount,
   };
 }

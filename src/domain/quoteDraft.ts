@@ -1,4 +1,4 @@
-import type { QuoteItem, Service, Unidades } from '../db';
+import type { QuoteItem, Service, Unit } from '../db';
 
 /* ------------------------------------------------------------------ *
  * Tipos
@@ -101,5 +101,5 @@ export function toQuoteItems(draft: DraftState): QuoteItem[] {
 }
 
 /** Tipo auxiliar para criar itens com unidade específica nos testes */
-export type { Unidades };
+export type { Unit };
 

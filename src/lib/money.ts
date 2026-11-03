@@ -8,8 +8,8 @@ export function formatBRL(cents: number): string {
   const safeCents = Number.isFinite(cents) ? Math.round(cents) : 0;
   const isNegative = safeCents < 0;
   const abs = Math.abs(safeCents);
-  const reais = Math.floor(cents / 100);
-  const centavos = cents % 100;
+  const reais = Math.floor(abs / 100);
+  const centavos = abs % 100;
 
   const reaisFormatted = reais.toLocaleString('pt-BR');
   const centavosFormatted = centavos.toString().padStart(2, '0');
@@ -18,23 +18,23 @@ export function formatBRL(cents: number): string {
 }
 
 export function parseBRLToCents(input: string): number {
-  if (typeof input !== 'string') return 0
+  if (typeof input !== 'string') return 0;
 
   let str = input.trim();
   if (!str) return 0;
 
-  //Remove simbolo de moeda e espaços extras
-  str = str.replace(/^R\$\s*/i, '').trim(); 
+  // Remove símbolo de moeda e espaços extras
+  str = str.replace(/^R\$\s*/i, '').trim();
 
-  //Valores negativos não são aceitos
+  // Valores negativos não são aceitos
   if (str.startsWith('-')) return 0;
 
-  //apenas dígitos, pontos, vírgulas e espaços são permitidos
-   if (!/^[\d\s.,]+$/.test(str)) {
+  // Apenas dígitos, pontos, vírgulas e espaços são aceitos
+  if (!/^[\d\s.,]+$/.test(str)) {
     return 0;
   }
 
-  //Remove espaços internos
+  // Remove espaços internos
   str = str.replace(/\s+/g, '');
 
   let intPart: string;
@@ -42,7 +42,6 @@ export function parseBRLToCents(input: string): number {
 
   const hasComma = str.includes(',');
   const hasDot = str.includes('.');
-
 
   if (hasComma && hasDot) {
     const lastComma = str.lastIndexOf(',');

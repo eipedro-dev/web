@@ -1,6 +1,8 @@
-import Dexie, { type EntityTable } from "dexie";
+import Dexie, { type EntityTable } from 'dexie';
 
 /* ------------------------------------------------------------------ *
+ * Tipos
+ *
  * Regras do modelo:
  *  - dinheiro SEMPRE em centavos inteiros (nunca float)
  *  - id gerado no cliente (UUID), para criar registros sem rede
@@ -8,7 +10,7 @@ import Dexie, { type EntityTable } from "dexie";
  *  - dirty/deleted são 0 | 1 (IndexedDB não indexa boolean)
  * ------------------------------------------------------------------ */
 
-export type Unidades = "un" | "h" | "m²" | "dia";
+export type Unit = 'un' | 'h' | 'm²' | 'dia';
 
 interface SyncFields {
   /** Versão conhecida do servidor. 0 = nunca sincronizado. */
@@ -17,6 +19,7 @@ interface SyncFields {
   dirty: 0 | 1;
   /** 1 = excluído (soft delete), para o servidor propagar a exclusão. */
   deleted: 0 | 1;
+  /** Relógio do aparelho (ms). Só para exibição/ordenação local. */
   updatedAt: number;
 }
 
@@ -24,30 +27,32 @@ export interface Service extends SyncFields {
   id: string;
   name: string;
   unitPriceCents: number;
-  unit: Unidades;
+  unit: Unit;
 }
 
 export interface QuoteItem {
+  /** Snapshot: copiado do serviço no momento da criação do orçamento. */
   name: string;
   quantity: number;
   unitPriceCents: number;
-  unit: Unidades;
+  unit: Unit;
 }
 
 export interface Quote extends SyncFields {
   id: string;
   clientName: string;
-  clientPhone: string;
-  clienteEmail: string;
+  clientPhone: string | null;
   items: QuoteItem[];
   discountCents: number;
   notes: string | null;
+  /** Só existe depois do primeiro sync (o servidor que gera). */
   publicToken: string | null;
   createdAt: number;
 }
 
-
-//Banco
+/* ------------------------------------------------------------------ *
+ * Banco
+ * ------------------------------------------------------------------ */
 
 export const db = new Dexie('orcamentos') as Dexie & {
   services: EntityTable<Service, 'id'>;
@@ -57,13 +62,12 @@ export const db = new Dexie('orcamentos') as Dexie & {
 // Índices só no que você consulta. Os demais campos são gravados normalmente.
 db.version(1).stores({
   services: 'id, name, dirty, updatedAt',
-  quotes: 'id, updatedAt, dirty'
-})
+  quotes: 'id, updatedAt, dirty',
+});
 
 /* ------------------------------------------------------------------ *
  * Fábricas (criam objetos novos, ainda não salvos)
  * ------------------------------------------------------------------ */
-
 
 const syncDefaults = (): SyncFields => ({
   version: 0,

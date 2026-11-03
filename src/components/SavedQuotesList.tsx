@@ -4,7 +4,7 @@ import { calcTotals } from '../domain/totals';
 import { formatBRL } from '../lib/money';
 import { getSyncStatus } from '../domain/syncStatus';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
-import { SyncBadge } from './SyncBadge';
+import { SyncBadge } from './Syncbadge';
 
 interface SavedQuotesListProps {
   quotes: Quote[] | undefined;
